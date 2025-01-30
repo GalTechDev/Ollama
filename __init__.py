@@ -178,7 +178,7 @@ async def on_message(message: discord.message.Message):
 
         await ask_ia_command(message, words, contents)
 
-    if message.content[:8] == "?forget ":
+    if message.content == "?forget":
         try:
             if message.author.id in list(historiques.keys()):
                 historiques.pop(message.author.id)
