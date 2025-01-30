@@ -4,6 +4,7 @@ from understar.system import lib
 import json
 import traceback
 import base64
+import logging
 
 Lib = lib.App()
 
@@ -84,9 +85,9 @@ def send_prompt(json_data):
                         yield token
 
             else:
-                print("Erreur lors de la requête :", response.status_code, response.text)
+                logging.error("Erreur lors de la requête :", response.status_code, response.text)
     except Exception as e:
-        print("Erreur :", e)
+        logging.error("Erreur :", e)
 
 
 async def ask_ia_command(ctx, words: str, contents: list):
@@ -129,11 +130,11 @@ async def ask_ia_command(ctx, words: str, contents: list):
 
                         response = await ctx.channel.send(content=text_send)
             except TypeError as e:
-                print(traceback.format_exc())
+                logging.error(traceback.format_exc())
         text+=last_block
         await response.edit(content=text[:2000])
     except Exception as e:
-        print(type(e), e)
+        logging.error(f"{type(e)}, {e}")
 
 async def updurl(ctx: discord.Interaction, new_domain, new_protocol):
     global domain, protocol
@@ -166,13 +167,15 @@ async def on_message(message: discord.message.Message):
     
     if message.content[:5] == "?ask ":
         words = message.content[5:]
+        if len(words)==0:
+            return
         try:
             contents = []
             for content in message.attachments:
                 if content.content_type in ('image/jpeg', 'image/jpg', 'image/png') and not content.is_voice_message():
                     contents.append(base64.b64encode(await content.read()).decode())
-        except Exception as e:
-            print(e)
+        except Exception:
+            logging.error(traceback.format_exc())
 
         await ask_ia_command(message, words, contents)
 
@@ -180,8 +183,9 @@ async def on_message(message: discord.message.Message):
         try:
             if message.author.id in list(historiques.keys()):
                 historiques.pop(message.author.id)
-        except Exception as e:
-            print(traceback.format_exc())
+            logging.info(historiques)
+        except Exception:
+            logging.error(traceback.format_exc())
         
 
 
@@ -203,8 +207,8 @@ async def on_message(message: discord.message.Message):
                             response = await message.channel.send(text[:1999]+"⌷")
                 text+=last_block
                 await response.edit(content=text[:2000])
-            except Exception as e:
-                print(e)
+            except Exception:
+                logging.error(traceback.format_exc())
 
 
 #############################################################
