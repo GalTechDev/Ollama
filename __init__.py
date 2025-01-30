@@ -155,9 +155,8 @@ async def updurl(ctx: discord.Interaction, new_domain, new_protocol):
 
 @Lib.event.event()
 async def on_ready():
-    global models
-
     data_load()
+    logging.info("Ollama ready !")
 
 
 @Lib.event.event()
